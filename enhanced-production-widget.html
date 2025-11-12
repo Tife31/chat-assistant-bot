@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vapi AI Widget - Enhanced Production</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Widget container with improved positioning */
+    .vapi-widget-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 380px;
+      height: 500px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      z-index: 999999;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .vapi-widget-container.minimized {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      animation: pulse 2s infinite;
+    }
+
+    .vapi-widget-container.minimized:hover {
+      transform: scale(1.1);
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .minimized-icon {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      color: white;
+      font-size: 24px;
+      position: relative;
+    }
+
+    .vapi-widget-container.minimized .minimized-icon {
+      display: flex;
+    }
+
+    .vapi-widget-container.minimized > *:not(.minimized-icon) {
+      display: none !important;
+    }
+
+    /* Launcher Screen (Avatar Greeting) */
+    .launcher-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0;
+      text-align: center;
+      height: 100%;
+      position: relative;
+    }
+
+    .launcher-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .launcher-control-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 12px;
+    }
+
+    .launcher-control-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .avatar-container {
+      margin: 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .launcher-avatar {
+      width: 100%;
+      height: 200px;
+      border-radius: 20px 20px 0 0;
+      object-fit: cover;
+      border: none;
+      box-shadow: none;
+      display: block;
+    }
+
+    .launcher-avatar.video {
+      background: #000;
+    }
+
+    .launcher-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 20px 40px;
+    }
+
+    .launcher-name {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .launcher-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .launcher-btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #667eea;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .launcher-btn:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .launcher-btn i {
+      font-size: 18px;
+    }
+
+    /* Header with improved layout */
+    .vapi-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .vapi-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .vapi-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .vapi-name {
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .vapi-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .control-btn.active {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Speaker mute visual indicator */
+    .control-btn.muted {
+      background: rgba(220, 53, 69, 0.6);
+    }
+
+    .control-btn.muted::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 2px;
+      background: #dc3545;
+      transform: translate(-50%, -50%) rotate(45deg);
+      z-index: 1;
+    }
+
+    /* Chat Container */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      animation: slideIn 0.3s ease;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      background: #f1f3f4;
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 70%;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.user .message-content {
+      background: #667eea;
+      color: white;
+    }
+
+    .message.typing .message-content {
+      background: #e9ecef;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    .message.typing::after {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #6c757d;
+      animation: typing 1.4s infinite;
+      margin-left: 4px;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0; }
+      30% { opacity: 1; }
+    }
+
+    /* Input Area */
+    .input-container {
+      padding: 16px 20px;
+      border-top: 1px solid #e9ecef;
+      background: white;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background: #f8f9fa;
+      border-radius: 20px;
+      padding: 8px 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      max-height: 100px;
+      padding: 8px 0;
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .send-btn:hover {
+      background: #5a6fd8;
+      transform: scale(1.1);
+    }
+
+    .send-btn:disabled {
+      background: #ddd;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Voice Mode */
+    .voice-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: white;
+      text-align: center;
+    }
+
+    .voice-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 4px solid #667eea;
+      animation: pulse-avatar 2s infinite;
+      object-fit: cover;
+    }
+
+    .voice-container.listening .voice-avatar {
+      border-color: #28a745;
+      animation: pulse-listening 1s infinite;
+    }
+
+    .voice-container.speaking .voice-avatar {
+      border-color: #fd7e14;
+      animation: pulse-speaking 0.8s infinite;
+    }
+
+    @keyframes pulse-avatar {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes pulse-listening {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+      50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    }
+
+    @keyframes pulse-speaking {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7); }
+      50% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(253, 126, 20, 0); }
+    }
+
+    .voice-status {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    .voice-controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .voice-btn {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .voice-btn.primary {
+      background: #28a745;
+      color: white;
+    }
+
+    .voice-btn.primary:hover {
+      background: #218838;
+      transform: scale(1.1);
+    }
+
+    .voice-btn.danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .voice-btn.danger:hover {
+      background: #c82333;
+      transform: scale(1.1);
+    }
+
+    .voice-btn.secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .voice-btn.secondary:hover {
+      background: #545b62;
+      transform: scale(1.1);
+    }
+
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Hidden state */
+    .d-none {
+      display: none !important;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #6c757d;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e9ecef;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .vapi-widget-container {
+        width: calc(100vw - 20px);
+        height: calc(100vh - 40px);
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        margin: 0 auto;
+      }
+
+      .vapi-widget-container.minimized {
+        width: 60px;
+        height: 60px;
+        right: 20px;
+        left: auto;
+      }
+
+      .chat-messages {
+        padding: 16px;
+      }
+
+      .input-container {
+        padding: 12px 16px;
+      }
+    }
+
+    /* Unread badge */
+    .unread-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Context sync indicator */
+    .context-indicator {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      background: #28a745;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Make video hidden by default, use fallback image */
+    .hidden {
+      display: none;
+    }
+
+    /* Accessibility improvements */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus indicators */
+    .launcher-btn:focus,
+    .control-btn:focus,
+    .voice-btn:focus,
+    .send-btn:focus {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    .chat-input:focus {
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<div id="vapiWidget" class="vapi-widget-container minimized" role="dialog" aria-labelledby="widgetTitle" aria-describedby="widgetDescription">
+  <!-- Screen reader only content -->
+  <div id="widgetTitle" class="sr-only">Eva AI Assistant Widget</div>
+  <div id="widgetDescription" class="sr-only">Interactive AI assistant with voice and text chat capabilities</div>
+
+  <!-- Minimized Icon -->
+  <div class="minimized-icon" role="button" tabindex="0" aria-label="Open AI assistant chat">
+    <i class="fas fa-robot" aria-hidden="true"></i>
+    <div id="unreadBadge" class="unread-badge d-none" aria-label="Unread messages">0</div>
+    <div id="contextIndicator" class="context-indicator d-none" title="Conversation context synced">
+      <i class="fas fa-sync" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <!-- Launcher Screen (Avatar Greeting) -->
+  <div id="launcherScreen" class="launcher-screen">
+    <div class="launcher-controls">
+      <button id="launcherMinimizeBtn" class="launcher-control-btn" title="Minimize widget" aria-label="Minimize">
+        <i class="fas fa-minus" aria-hidden="true"></i>
+      </button>
+    </div>
+    
+    <div class="avatar-container">
+      <video id="introVideo" class="launcher-avatar video" autoplay muted playsinline aria-label="AI assistant introduction video">
+        <source src="https://res.cloudinary.com/dyjusozqr/video/upload/v1758637455/video-1751846286861_f4iioq.mp4" type="video/mp4" />
+        <img class="launcher-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face" alt="AI Assistant" />
+      </video>
+      <img id="staticAvatar" class="launcher-avatar hidden" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face" alt="AI Assistant" />
+    </div>
+    
+    <div class="launcher-content">
+      <div class="launcher-name">✨ Eva AI</div>
+      
+      <div class="launcher-actions">
+        <button id="voiceTalkBtn" class="launcher-btn" aria-describedby="voiceTalkDescription">
+          <i class="fas fa-microphone" aria-hidden="true"></i>
+          Voice Talk
+          <span id="voiceTalkDescription" class="sr-only">Start voice conversation with AI assistant</span>
+        </button>
+        <button id="textChatBtn" class="launcher-btn" aria-describedby="textChatDescription">
+          <i class="fas fa-comment-dots" aria-hidden="true"></i>
+          Text Chat
+          <span id="textChatDescription" class="sr-only">Start text conversation with AI assistant</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div id="vapiHeader" class="vapi-header d-none">
+    <div class="vapi-header-left">
+      <img class="vapi-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face" alt="AI Assistant">
+      <span class="vapi-name">Eva AI</span>
+    </div>
+    <div class="vapi-controls">
+      <!-- Mode Toggle -->
+      <div class="mode-toggle" role="tablist" aria-label="Chat mode selection">
+        <button id="textModeBtn" class="mode-btn active" role="tab" aria-selected="true" aria-label="Text chat mode">
+          <i class="fas fa-comment" aria-hidden="true"></i>
+        </button>
+        <button id="voiceModeBtn" class="mode-btn" role="tab" aria-selected="false" aria-label="Voice chat mode">
+          <i class="fas fa-microphone" aria-hidden="true"></i>
+        </button>
+      </div>
+      
+      <!-- Control buttons -->
+      <button id="speakerBtn" class="control-btn" title="Toggle speaker" aria-label="Mute or unmute speaker">
+        <i class="fas fa-volume-up" aria-hidden="true"></i>
+      </button>
+      <button id="minimizeBtn" class="control-btn" title="Minimize widget" aria-label="Minimize">
+        <i class="fas fa-minus" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Mode -->
+  <div id="chatMode" class="chat-container d-none" role="tabpanel" aria-labelledby="textModeBtn">
+    <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+      <div class="message">
+        <img class="message-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face" alt="Assistant">
+        <div class="message-content">
+          Hi! I'm Eva, your AI assistant. How can I help you today?
+        </div>
+      </div>
+    </div>
+    <div class="input-container">
+      <div class="input-wrapper">
+        <textarea id="chatInput" class="chat-input" placeholder="Type your message..." rows="1" aria-label="Type your message"></textarea>
+        <button id="sendBtn" class="send-btn" aria-label="Send message">
+          <i class="fas fa-paper-plane" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Mode -->
+  <div id="voiceMode" class="voice-container d-none" role="tabpanel" aria-labelledby="voiceModeBtn">
+    <img class="voice-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face" alt="AI Assistant">
+    <div id="voiceStatus" class="voice-status" aria-live="polite">Click to start talking</div>
+    <div class="voice-controls">
+      <button id="startVoiceBtn" class="voice-btn primary" aria-label="Start voice conversation">
+        <i class="fas fa-play" aria-hidden="true"></i>
+      </button>
+      <button id="muteBtn" class="voice-btn secondary" aria-label="Mute microphone">
+        <i class="fas fa-microphone" aria-hidden="true"></i>
+      </button>
+      <button id="stopVoiceBtn" class="voice-btn danger d-none" aria-label="Stop voice conversation">
+        <i class="fas fa-stop" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden audio element for speaker control -->
+<audio id="assistantAudio" preload="auto" aria-hidden="true"></audio>
+
+<!-- Load Vapi SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/index.umd.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // ===== CONFIGURATION =====
+  const VAPI_CONFIG = {
+    publicKey: "a527e7c4-6f67-4452-afb6-e76449934dc4", // Replace with your actual public key
+    assistantId: "a9663083-3543-48ee-ba4f-953ecf439edc" // Replace with your actual assistant ID
+  };
+
+  // Configuration options - easily customizable
+  const WIDGET_CONFIG = {
+    autoExpandDelay: 5000, // Auto-expand after 5 seconds
+    maxConversationHistory: 20, // Maximum conversation messages to sync
+    persistHistory: true, // Save conversation to localStorage
+    enableAudioControl: true, // Enable speaker mute functionality
+    contextSyncEnabled: true // Enable conversation context syncing
+  };
+
+  // ===== DOM ELEMENTS =====
+  const widget = document.getElementById('vapiWidget');
+  const unreadBadge = document.getElementById('unreadBadge');
+  const contextIndicator = document.getElementById('contextIndicator');
+  const assistantAudio = document.getElementById('assistantAudio');
+  
+  // Launcher elements
+  const launcherScreen = document.getElementById('launcherScreen');
+  const introVideo = document.getElementById('introVideo');
+  const staticAvatar = document.getElementById('staticAvatar');
+  const voiceTalkBtn = document.getElementById('voiceTalkBtn');
+  const textChatBtn = document.getElementById('textChatBtn');
+  const launcherMinimizeBtn = document.getElementById('launcherMinimizeBtn');
+  
+  // Header and mode elements
+  const vapiHeader = document.getElementById('vapiHeader');
+  const textModeBtn = document.getElementById('textModeBtn');
+  const voiceModeBtn = document.getElementById('voiceModeBtn');
+  const speakerBtn = document.getElementById('speakerBtn');
+  const minimizeBtn = document.getElementById('minimizeBtn');
+  
+  const chatMode = document.getElementById('chatMode');
+  const voiceMode = document.getElementById('voiceMode');
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  
+  const voiceStatus = document.getElementById('voiceStatus');
+  const startVoiceBtn = document.getElementById('startVoiceBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const stopVoiceBtn = document.getElementById('stopVoiceBtn');
+
+  // ===== STATE MANAGEMENT =====
+  let vapi = null;
+  let isMinimized = true;
+  let currentMode = 'launcher'; // 'launcher', 'text', or 'voice'
+  let isConnected = false;
+  let isListening = false;
+  let isSpeakerMuted = false;
+  let isMicMuted = false;
+  let unreadCount = 0;
+  let conversationId = null;
+  
+  // Conversation context for syncing between modes
+  let conversationHistory = [];
+  let lastSyncedMessage = null;
+
+  // ===== CONVERSATION CONTEXT MANAGEMENT =====
+  function addToConversationHistory(content, role) {
+    const message = {
+      id: Date.now() + Math.random(),
+      content: content,
+      role: role,
+      timestamp: new Date().toISOString(),
+      mode: currentMode
+    };
+
+    conversationHistory.push(message);
+    
+    // Limit history size
+    if (conversationHistory.length > WIDGET_CONFIG.maxConversationHistory) {
+      conversationHistory = conversationHistory.slice(-WIDGET_CONFIG.maxConversationHistory);
+    }
+
+    // Persist to localStorage if enabled
+    if (WIDGET_CONFIG.persistHistory) {
+      localStorage.setItem('vapi_conversation_history', JSON.stringify(conversationHistory));
+    }
+
+    // Update context indicator
+    updateContextIndicator();
+
+    console.log('💾 Added to conversation history:', message);
+  }
+
+  function loadConversationHistory() {
+    if (!WIDGET_CONFIG.persistHistory) return;
+
+    try {
+      const saved = localStorage.getItem('vapi_conversation_history');
+      if (saved) {
+        conversationHistory = JSON.parse(saved);
+        console.log('📖 Loaded conversation history:', conversationHistory.length, 'messages');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load conversation history:', error);
+      conversationHistory = [];
+    }
+  }
+
+  function getContextForAssistant() {
+    if (!WIDGET_CONFIG.contextSyncEnabled) return '';
+
+    const recentMessages = conversationHistory.slice(-6); // Last 6 messages for context
+    return recentMessages
+      .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+      .join('\n');
+  }
+
+  function updateContextIndicator() {
+    if (conversationHistory.length > 0 && WIDGET_CONFIG.contextSyncEnabled) {
+      contextIndicator.classList.remove('d-none');
+    } else {
+      contextIndicator.classList.add('d-none');
+    }
+  }
+
+  // ===== VAPI INITIALIZATION =====
+  function initializeVapi() {
+    try {
+      if (typeof window.Vapi === 'undefined') {
+        console.error('Vapi SDK not loaded');
+        showError('Voice features unavailable: SDK not loaded');
+        return;
+      }
+
+      vapi = new window.Vapi(VAPI_CONFIG.publicKey);
+      console.log('✅ Vapi initialized successfully');
+
+      // Set up event listeners
+      setupVapiEvents();
+      
+      // Load conversation history
+      loadConversationHistory();
+      updateContextIndicator();
+      
+    } catch (error) {
+      console.error('❌ Failed to initialize Vapi:', error);
+      showError('Failed to initialize voice features');
+    }
+  }
+
+  // ===== VAPI EVENT HANDLERS =====
+  function setupVapiEvents() {
+    if (!vapi) return;
+
+    vapi.on('call-start', () => {
+      console.log('📞 Call started');
+      isConnected = true;
+      updateVoiceStatus('Connected! Start speaking...');
+      voiceMode.classList.add('listening');
+      startVoiceBtn.classList.add('d-none');
+      stopVoiceBtn.classList.remove('d-none');
+      
+      // Apply speaker mute state
+      if (isSpeakerMuted && WIDGET_CONFIG.enableAudioControl) {
+        muteAssistantAudio();
+      }
+    });
+
+    vapi.on('call-end', () => {
+      console.log('📞 Call ended');
+      isConnected = false;
+      isListening = false;
+      updateVoiceStatus('Click to start talking');
+      voiceMode.classList.remove('listening', 'speaking');
+      startVoiceBtn.classList.remove('d-none');
+      stopVoiceBtn.classList.add('d-none');
+    });
+
+    vapi.on('speech-start', () => {
+      console.log('🎙️ User speech started');
+      isListening = true;
+      updateVoiceStatus('Listening...');
+      voiceMode.classList.add('listening');
+      voiceMode.classList.remove('speaking');
+    });
+
+    vapi.on('speech-end', () => {
+      console.log('🎙️ User speech ended');
+      isListening = false;
+      updateVoiceStatus('Processing...');
+      voiceMode.classList.remove('listening');
+    });
+
+    vapi.on('ai-speech-start', () => {
+      console.log('🤖 AI speech started');
+      updateVoiceStatus('AI is speaking...');
+      voiceMode.classList.add('speaking');
+      voiceMode.classList.remove('listening');
+      
+      // Apply speaker mute if enabled
+      if (isSpeakerMuted && WIDGET_CONFIG.enableAudioControl) {
+        muteAssistantAudio();
+      }
+    });
+
+    vapi.on('ai-speech-end', () => {
+      console.log('🤖 AI speech ended');
+      updateVoiceStatus('Your turn to speak...');
+      voiceMode.classList.remove('speaking');
+      voiceMode.classList.add('listening');
+    });
+
+    vapi.on('message', (message) => {
+      console.log('💬 Message received:', message);
+      handleMessage(message);
+    });
+
+    vapi.on('error', (error) => {
+      console.error('❌ Vapi error:', error);
+      showError(`Error: ${error.message || 'Unknown error'}`);
+      isConnected = false;
+      updateVoiceStatus('Error occurred. Try again.');
+    });
+
+    // Text chat events
+    vapi.on('conversation-update', (data) => {
+      console.log('💬 Conversation update:', data);
+      if (data.messages) {
+        data.messages.forEach(msg => handleMessage(msg));
+      }
+    });
+  }
+
+  // ===== SPEAKER CONTROL =====
+  function muteAssistantAudio() {
+    if (!WIDGET_CONFIG.enableAudioControl) return;
+    
+    // Mute all audio elements
+    const audioElements = document.querySelectorAll('audio, video');
+    audioElements.forEach(el => {
+      el.muted = true;
+      el.volume = 0;
+    });
+    
+    // Try to mute Vapi audio if possible
+    if (vapi && typeof vapi.setVolume === 'function') {
+      vapi.setVolume(0);
+    }
+    
+    console.log('🔇 Assistant audio muted');
+  }
+
+  function unmuteAssistantAudio() {
+    if (!WIDGET_CONFIG.enableAudioControl) return;
+    
+    // Unmute all audio elements
+    const audioElements = document.querySelectorAll('audio, video');
+    audioElements.forEach(el => {
+      el.muted = false;
+      el.volume = 1;
+    });
+    
+    // Try to unmute Vapi audio if possible
+    if (vapi && typeof vapi.setVolume === 'function') {
+      vapi.setVolume(1);
+    }
+    
+    console.log('🔊 Assistant audio unmuted');
+  }
+
+  function toggleSpeaker() {
+    isSpeakerMuted = !isSpeakerMuted;
+    
+    if (isSpeakerMuted) {
+      muteAssistantAudio();
+      speakerBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+      speakerBtn.classList.add('muted');
+      speakerBtn.setAttribute('aria-label', 'Unmute speaker');
+    } else {
+      unmuteAssistantAudio();
+      speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      speakerBtn.classList.remove('muted');
+      speakerBtn.setAttribute('aria-label', 'Mute speaker');
+    }
+    
+    console.log(isSpeakerMuted ? '🔇 Speaker muted' : '🔊 Speaker unmuted');
+  }
+
+  // ===== MESSAGE HANDLING =====
+  function handleMessage(message) {
+    if (!message) return;
+
+    const isUser = message.role === 'user';
+    const content = message.content || message.text || message.transcript || '';
+    
+    if (!content.trim()) return;
+
+    // Add to conversation history
+    addToConversationHistory(content, message.role || (isUser ? 'user' : 'assistant'));
+
+    // Add to chat in text mode, or create transcript in voice mode
+    if (currentMode === 'text') {
+      addChatMessage(content, isUser);
+    }
+
+    // Update unread count if minimized
+    if (isMinimized && !isUser) {
+      updateUnreadCount(unreadCount + 1);
+    }
+  }
+
+  // ===== UI FUNCTIONS =====
+  function expand() {
+    widget.classList.remove('minimized');
+    isMinimized = false;
+    updateUnreadCount(0);
+    
+    // Show appropriate screen based on current mode
+    if (currentMode === 'launcher') {
+      showLauncherScreen();
+    } else {
+      showModeScreen(currentMode);
+    }
+  }
+
+  function minimize() {
+    widget.classList.add('minimized');
+    isMinimized = true;
+  }
+
+  function showLauncherScreen() {
+    launcherScreen.classList.remove('d-none');
+    vapiHeader.classList.add('d-none');
+    chatMode.classList.add('d-none');
+    voiceMode.classList.add('d-none');
+    
+    // Start the intro video
+    if (introVideo && !introVideo.played) {
+      introVideo.play().catch(e => console.log('Video autoplay blocked:', e));
+    }
+  }
+
+  function showModeScreen(mode) {
+    currentMode = mode;
+    
+    // Hide launcher, show header
+    launcherScreen.classList.add('d-none');
+    vapiHeader.classList.remove('d-none');
+    
+    if (mode === 'text') {
+      chatMode.classList.remove('d-none');
+      voiceMode.classList.add('d-none');
+      textModeBtn.classList.add('active');
+      voiceModeBtn.classList.remove('active');
+      textModeBtn.setAttribute('aria-selected', 'true');
+      voiceModeBtn.setAttribute('aria-selected', 'false');
+      setTimeout(() => chatInput.focus(), 300);
+    } else if (mode === 'voice') {
+      chatMode.classList.add('d-none');
+      voiceMode.classList.remove('d-none');
+      textModeBtn.classList.remove('active');
+      voiceModeBtn.classList.add('active');
+      textModeBtn.setAttribute('aria-selected', 'false');
+      voiceModeBtn.setAttribute('aria-selected', 'true');
+    }
+  }
+
+  function switchMode(mode) {
+    if (currentMode === mode) return;
+    
+    // Stop current session if active
+    if (isConnected) {
+      stopVoiceSession();
+    }
+
+    showModeScreen(mode);
+  }
+
+  function addChatMessage(content, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : ''}`;
+    
+    const avatarImg = document.createElement('img');
+    avatarImg.className = 'message-avatar';
+    avatarImg.src = isUser 
+      ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
+      : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face';
+    avatarImg.alt = isUser ? 'User' : 'Assistant';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = content;
+    
+    messageDiv.appendChild(avatarImg);
+    messageDiv.appendChild(contentDiv);
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function updateVoiceStatus(status) {
+    voiceStatus.textContent = status;
+  }
+
+  function updateUnreadCount(count) {
+    unreadCount = count;
+    if (count > 0) {
+      unreadBadge.textContent = count.toString();
+      unreadBadge.classList.remove('d-none');
+    } else {
+      unreadBadge.classList.add('d-none');
+    }
+  }
+
+  function showError(message) {
+    addChatMessage(`❌ ${message}`, false);
+  }
+
+  function showLoading(isLoading) {
+    if (isLoading) {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'message typing';
+      loadingDiv.innerHTML = `
+        <img class="message-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face" alt="Assistant">
+        <div class="message-content">Thinking...</div>
+      `;
+      loadingDiv.id = 'typingIndicator';
+      chatMessages.appendChild(loadingDiv);
+    } else {
+      const typingIndicator = document.getElementById('typingIndicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // ===== VOICE FUNCTIONS =====
+  function startVoiceSession() {
+    if (!vapi) {
+      showError('Voice features not available');
+      return;
+    }
+
+    try {
+      console.log('🎤 Starting voice session...');
+      
+      // Send context if available
+      const context = getContextForAssistant();
+      if (context && WIDGET_CONFIG.contextSyncEnabled) {
+        console.log('📋 Sending conversation context to assistant');
+        // Add context to the session - this may vary depending on Vapi's API
+        vapi.start(VAPI_CONFIG.assistantId, {
+          metadata: {
+            conversationContext: context
+          }
+        });
+      } else {
+        vapi.start(VAPI_CONFIG.assistantId);
+      }
+      
+      updateVoiceStatus('Connecting...');
+    } catch (error) {
+      console.error('❌ Failed to start voice session:', error);
+      showError('Failed to start voice session');
+    }
+  }
+
+  function stopVoiceSession() {
+    if (!vapi || !isConnected) return;
+
+    try {
+      console.log('⏹️ Stopping voice session...');
+      vapi.stop();
+    } catch (error) {
+      console.error('❌ Failed to stop voice session:', error);
+    }
+  }
+
+  function toggleMute() {
+    if (!vapi || !isConnected) return;
+
+    try {
+      isMicMuted = !isMicMuted;
+      vapi.setMuted(isMicMuted);
+      muteBtn.innerHTML = isMicMuted 
+        ? '<i class="fas fa-microphone-slash"></i>'
+        : '<i class="fas fa-microphone"></i>';
+      muteBtn.setAttribute('aria-label', isMicMuted ? 'Unmute microphone' : 'Mute microphone');
+      console.log(isMicMuted ? '🔇 Microphone muted' : '🎤 Microphone unmuted');
+    } catch (error) {
+      console.error('❌ Failed to toggle mute:', error);
+    }
+  }
+
+  // ===== CHAT FUNCTIONS =====
+  async function sendTextMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // Add user message to chat
+    addChatMessage(message, true);
+    addToConversationHistory(message, 'user');
+    chatInput.value = '';
+    autoResize();
+
+    // Show loading
+    showLoading(true);
+
+    try {
+      if (vapi) {
+        // Prepare message with context
+        const messageData = {
+          type: 'add-message',
+          message: {
+            role: 'user',
+            content: message
+          }
+        };
+
+        // Add context if enabled
+        if (WIDGET_CONFIG.contextSyncEnabled && conversationHistory.length > 1) {
+          const context = getContextForAssistant();
+          messageData.message.metadata = {
+            conversationContext: context
+          };
+        }
+
+        // Use Vapi for text chat
+        await vapi.send(messageData);
+        
+      } else {
+        // Fallback demo response
+        setTimeout(() => {
+          showLoading(false);
+          const response = "I received your message: \"" + message + "\". This is a demo response since Vapi SDK is not connected.";
+          addChatMessage(response, false);
+          addToConversationHistory(response, 'assistant');
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('❌ Failed to send message:', error);
+      showLoading(false);
+      showError('Failed to send message. Please try again.');
+    }
+  }
+
+  // ===== UTILITY FUNCTIONS =====
+  function autoResize() {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+  }
+
+  // ===== ACCESSIBILITY HELPERS =====
+  function handleKeyNavigation(event) {
+    if (event.key === 'Escape' && !isMinimized) {
+      minimize();
+    }
+  }
+
+  // ===== EVENT LISTENERS =====
+  
+  // Widget controls
+  widget.addEventListener('click', (e) => {
+    if (isMinimized && e.target.closest('.minimized-icon')) {
+      expand();
+    }
+  });
+
+  // Keyboard support for minimized widget
+  widget.addEventListener('keydown', (e) => {
+    if (isMinimized && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      expand();
+    }
+  });
+
+  // Launcher buttons
+  voiceTalkBtn.addEventListener('click', () => {
+    showModeScreen('voice');
+    startVoiceSession();
+  });
+
+  textChatBtn.addEventListener('click', () => {
+    showModeScreen('text');
+  });
+
+  launcherMinimizeBtn.addEventListener('click', minimize);
+
+  // Header controls
+  minimizeBtn.addEventListener('click', minimize);
+
+  // Mode switching
+  textModeBtn.addEventListener('click', () => switchMode('text'));
+  voiceModeBtn.addEventListener('click', () => switchMode('voice'));
+
+  // Speaker toggle
+  speakerBtn.addEventListener('click', toggleSpeaker);
+
+  // Chat functionality
+  sendBtn.addEventListener('click', sendTextMessage);
+  
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendTextMessage();
+    }
+  });
+
+  chatInput.addEventListener('input', autoResize);
+
+  // Voice functionality
+  startVoiceBtn.addEventListener('click', startVoiceSession);
+  stopVoiceBtn.addEventListener('click', stopVoiceSession);
+  muteBtn.addEventListener('click', toggleMute);
+
+  // Global keyboard navigation
+  document.addEventListener('keydown', handleKeyNavigation);
+
+  // ===== INITIALIZATION =====
+  
+  // Initialize Vapi when SDK is loaded
+  if (typeof window.Vapi !== 'undefined') {
+    initializeVapi();
+  } else {
+    // Wait for SDK to load
+    const checkVapi = setInterval(() => {
+      if (typeof window.Vapi !== 'undefined') {
+        clearInterval(checkVapi);
+        initializeVapi();
+      }
+    }, 100);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      clearInterval(checkVapi);
+      if (!vapi) {
+        console.error('❌ Vapi SDK failed to load after 10 seconds');
+        showError('Voice features unavailable: SDK loading failed');
+      }
+    }, 10000);
+  }
+
+  // Auto-expand after configured delay to show launcher screen (avatar greeting)
+  setTimeout(() => {
+    if (isMinimized) {
+      console.log(`🚀 Auto-expanding to launcher screen after ${WIDGET_CONFIG.autoExpandDelay/1000} seconds`);
+      expand(); // This will show the launcher screen with the video greeting
+    }
+  }, WIDGET_CONFIG.autoExpandDelay);
+
+  console.log('🎉 Enhanced Vapi Widget initialized successfully');
+  console.log('🔧 Configuration:', WIDGET_CONFIG);
+});
+</script>
+
+</body>
+</html>
